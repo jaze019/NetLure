@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>NetLure | Cyber Warfare Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <style>
+        body { margin: 0; background: #0a0a0a; color: #00ff00; font-family: monospace; overflow: hidden; }
+        #map { height: 60vh; width: 100%; border-bottom: 2px solid #00ff00; }
+        #log-panel { height: 40vh; padding: 20px; overflow-y: auto; background: #000; }
+        .log-entry { margin-bottom: 5px; border-bottom: 1px solid #1a1a1a; padding: 5px; }
+        
+        h1 { position: absolute; top: 10px; right: 10px; z-index: 1000; background: rgba(0,0,0,0.8); padding: 10px; margin: 0; border: 1px solid #00ff00; }
+        
+        #alert-banner { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 0, 0, 0.2); pointer-events: none; z-index: 999; animation: flash 0.5s infinite; }
+        @keyframes flash { 0% { opacity: 0; } 50% { opacity: 1; } 100% { opacity: 0; } }
+
+        /* --- THE BOOT SEQUENCE SCREEN --- */
+        #init-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.95); z-index: 9999;
+            display: flex; justify-content: center; align-items: center;
+            flex-direction: column; 
+            transition: opacity 1s ease-out, visibility 1s ease-out; 
+        }
+        
+        /* 1. Button */
+        .init-btn {
+            border: 2px solid #00ff00; padding: 20px 40px; font-size: 24px;
+            color: #00ff00; background: #000; font-family: monospace;
+            cursor: pointer; animation: pulse 2s infinite;
+        }
+        .init-btn:hover { background: #00ff00; color: #000; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+
+        /* 2. Spinner */
+        .loader {
+            border: 4px solid rgba(0, 255, 0, 0.2); border-top: 4px solid #00ff00;
+            border-radius: 50%; width: 60px; height: 60px;
+            animation: spin 1s linear infinite; box-shadow: 0 0 15px #00ff00; margin: 0 auto;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* 3. Cinematic Welcome Text */
+        .welcome-text {
+            font-size: 50px; color: #00ff00;
+            text-shadow: 0 0 20px #00ff00; font-weight: bold;
+            letter-spacing: 15px; margin-left: 15px; /* Offset for letter spacing */
+            animation: cinematic-reveal 1.5s ease-out forwards;
+        }
+        .welcome-subtext {
+            font-size: 20px; color: #00aa00; margin-top: 15px;
+            letter-spacing: 8px; margin-left: 8px;
+            animation: fade-in-up 1.5s ease-out forwards;
+            animation-delay: 0.5s; opacity: 0; /* Waits half a second before appearing */
+        }
+        
+        @keyframes cinematic-reveal {
+            0% { opacity: 0; transform: scale(1.5); filter: blur(10px); }
+            100% { opacity: 1; transform: scale(1); filter: blur(0); }
+        }
+        @keyframes fade-in-up {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-out { opacity: 0; visibility: hidden; }
+    </style>
+</head>
+<body>
+
+    <div id="init-screen">
+        
+        <div class="init-btn" id="init-btn" onclick="startBootSequence()">⚠️ CLICK TO INITIALIZE SYSTEM ⚠️</div>
+        
+        <div id="loader-container" style="display: none; text-align: center;">
+            <div class="loader"></div>
+            <div style="margin-top: 20px; font-size: 18px; animation: pulse 1s infinite;">AUTHENTICATING SECURE LINK...</div>
+        </div>
+
+        <div id="welcome-container" style="display: none; text-align: center;">
+            <div class="welcome-text">WELCOME TO NETLURE</div>
+            <div class="welcome-subtext">LIVE THREAT MONITORING SYSTEM</div>
+        </div>
+
+    </div>
+
+    <h1>NETLURE: LIVE MONITOR</h1>
+    <div id="alert-banner"></div> 
+    <div id="map"></div>
+    <div id="log-panel">
+        <div id="logs"></div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <script>
+        const alarm = new Audio('alarm.mp3'); 
+        let audioUnlocked = false;
+
+        // --- THE BOOT SEQUENCE CHOREOGRAPHY ---
+        function startBootSequence() {
+            const initBtn = document.getElementById('init-btn');
+            const loaderContainer = document.getElementById('loader-container');
+            const welcomeContainer = document.getElementById('welcome-container');
+            const initScreen = document.getElementById('init-screen');
+
+            // Phase 1 -> 2: Hide Button, Show Spinner
+            initBtn.style.display = 'none';
+            loaderContainer.style.display = 'block';
+
+            // Unlock Audio immediately behind the scenes
+            alarm.play().then(() => {
+                alarm.pause();
+                alarm.currentTime = 0;
+                audioUnlocked = true;
+            }).catch(e => console.error("Audio blocked!", e));
+            
+            // Phase 2 -> 3: Wait 1.5s, Hide Spinner, Show Welcome Text
+            setTimeout(() => {
+                loaderContainer.style.display = 'none';
+                welcomeContainer.style.display = 'block';
+                
+                // Phase 3 -> Map Reveal: Wait 2.0s for user to read it, then fade out screen
+                setTimeout(() => {
+                    initScreen.classList.add('fade-out');
+                    
+                    // Cleanup DOM and drop the first log line
+                    setTimeout(() => { 
+                        initScreen.style.display = 'none'; 
+                        log("[SYSTEM] Mainframe Link Established. Monitoring Active.", "lime");
+                    }, 1000);
+
+                }, 2000); 
+
+            }, 1500);
+        }
+
+        // --- MAP & WEBSOCKET CORE ---
+        var map = L.map('map').setView([20, 0], 2);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '© OpenStreetMap contributors & CartoDB'
+        }).addTo(map);
+
+        const socket = new WebSocket('ws://localhost:8765');
+        const logDiv = document.getElementById('logs');
+        const banner = document.getElementById('alert-banner');
+
+        socket.onmessage = function(event) {
+            try {
+                const data = JSON.parse(event.data);
+                
+                if (audioUnlocked) {
+                    let sound = alarm.cloneNode(true);
+                    sound.volume = 0.5;
+                    sound.play().catch(e => console.error(e));
+                }
+
+                let ai_text = "Analyzing...";
+                let color = '#00ff00';
+                let radius = 10;
+
+                if (data.ai_label === "Botnet") {
+                    ai_text = "AI ALERT: BOTNET ATTACK";
+                    color = '#ff0000'; radius = 30; 
+                    banner.style.display = 'block';
+                    setTimeout(() => { banner.style.display = 'none'; }, 500);
+                } else {
+                    ai_text = "AI INFO: HUMAN ACTIVITY";
+                    color = '#00ff00'; radius = 15;
+                }
+
+                const msg = `[${ai_text}] ${data.ip} (${data.city}) -> Port ${data.port}`;
+                log(msg, color);
+
+                L.circleMarker([data.lat, data.lng], {
+                    color: color, fillColor: color, fillOpacity: 0.8, radius: radius
+                }).addTo(map).bindPopup(`<b>${ai_text}</b><br>${data.city}`).openPopup();
+
+            } catch (e) { console.error(e); }
+        };
+
+        function log(message, color) {
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.style.color = color || '#00ff00';
+            entry.innerText = `> ${new Date().toLocaleTimeString()} : ${message}`;
+            logDiv.prepend(entry);
+        }
+    </script>
+</body>
+</html>
