@@ -7,7 +7,7 @@ Built to solve the problem of "Alert Fatigue" in cybersecurity, NetLure aggregat
 # Disclaimer!!!
 NetLure is an educational project developed for demonstrating network security, intrusion detection, and telemetry visualization. Do not deploy honeypots on production networks without proper isolation and authorization.
 
-# 🚀 Key Features
+# Key Features
 
 * **Real-Time Threat Mapping:** Streams live attack data from a network sensor to a Leaflet.js global map via asynchronous WebSockets.
 * **AI-Driven Threat Classification:** Utilizes a heuristic expert system to differentiate between manual human probes (Low severity) and automated Botnet attacks (High severity) based on packet frequency.
@@ -37,4 +37,5 @@ NetLure operates on a lightweight, decoupled Client-Server architecture:
 
 # Future Scope: Enterprise Deployment
 While this repository serves as a proof-of-concept, the architecture is designed to scale into a Distributed Threat Intelligence Network. Future iterations will include deploying lightweight sensors across cloud VPCs, forwarding telemetry to an AWS SQS message queue, and upgrading the deterministic AI model to an Unsupervised Machine Learning model trained on baseline enterprise traffic.
+
 
